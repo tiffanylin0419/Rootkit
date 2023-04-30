@@ -25,12 +25,14 @@ MODULE_INFO(retpoline, "Y");
 static const struct modversion_info ____versions[]
 __used __section(__versions) = {
 	{ 0xdd8f8694, "module_layout" },
+	{ 0x3d7fbf14, "param_ops_charp" },
 	{ 0xe007de41, "kallsyms_lookup_name" },
 	{ 0xc5850110, "printk" },
 	{ 0xdecd0b29, "__stack_chk_fail" },
 	{ 0x8b9200fd, "lookup_address" },
 	{ 0xb44ad4b3, "_copy_to_user" },
 	{ 0xb0e602eb, "memmove" },
+	{ 0xe2d5255a, "strcmp" },
 	{ 0x2ea2c95c, "__x86_indirect_thunk_rax" },
 	{ 0xbdfb6dbb, "__fentry__" },
 };
@@ -38,4 +40,4 @@ __used __section(__versions) = {
 MODULE_INFO(depends, "");
 
 
-MODULE_INFO(srcversion, "8A0A446304630731519D92A");
+MODULE_INFO(srcversion, "DB5D17FA4E9A01589EB90BE");

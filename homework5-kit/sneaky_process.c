@@ -14,7 +14,7 @@ int main(void){
   
   // 3. load the sneaky module (sneaky_mod.ko)
   char message[80];
-  sprintf(message, "insmod sneaky_mod.ko pid = %d", getpid());
+  sprintf(message, "insmod sneaky_mod.ko pid=%d", getpid());
   system(message);
 
   // 4. reading a character at a time from the keyboard until it receives the character ‘q’ (for quit)

