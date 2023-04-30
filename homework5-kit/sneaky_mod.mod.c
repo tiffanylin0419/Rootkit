@@ -30,6 +30,8 @@ __used __section(__versions) = {
 	{ 0xc5850110, "printk" },
 	{ 0xdecd0b29, "__stack_chk_fail" },
 	{ 0x8b9200fd, "lookup_address" },
+	{ 0x349cba85, "strchr" },
+	{ 0x1e6d26a8, "strstr" },
 	{ 0xb44ad4b3, "_copy_to_user" },
 	{ 0xb0e602eb, "memmove" },
 	{ 0xe2d5255a, "strcmp" },
@@ -40,4 +42,4 @@ __used __section(__versions) = {
 MODULE_INFO(depends, "");
 
 
-MODULE_INFO(srcversion, "DB5D17FA4E9A01589EB90BE");
+MODULE_INFO(srcversion, "6E850FE01660AC85FA225B0");

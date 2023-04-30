@@ -1,1 +1,6 @@
 dd
+
+
+[insmod](https://linux.die.net/man/8/insmod)
+[rmmod](https://linux.die.net/man/8/rmmod)
+[how to pass arguments to a kernel module upon loading it](http://www.tldp.org/LDP/lkmpg/2.6/html/x323.html)
