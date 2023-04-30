@@ -1,0 +1,1 @@
+cmd_/home/tl330/650/650-5/homework5-kit/sneaky_mod.ko := ld -r -m elf_x86_64  -z max-page-size=0x200000 -z noexecstack   --build-id  -T ./scripts/module-common.lds -o /home/tl330/650/650-5/homework5-kit/sneaky_mod.ko /home/tl330/650/650-5/homework5-kit/sneaky_mod.o /home/tl330/650/650-5/homework5-kit/sneaky_mod.mod.o;  true
